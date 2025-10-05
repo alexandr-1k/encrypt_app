@@ -6,6 +6,7 @@
 #include <memory>
 #include <openssl/evp.h>
 #include <sstream>
+#include <stdexcept>
 #include <vector>
 
 namespace CryptoGuard {
@@ -41,8 +42,8 @@ private:
     using CtxUniquePtr = std::unique_ptr<EVP_CIPHER_CTX, CtxDeleter>;
     using MDCtxUniquePtr = std::unique_ptr<EVP_MD_CTX, EVPMDCTXDeleter>;
 
-    mutable CtxUniquePtr ctx_;
-    mutable MDCtxUniquePtr md_ctx_;
+    CtxUniquePtr ctx_;
+    MDCtxUniquePtr md_ctx_;
 
     void InitCipherContext(std::string_view password, bool encrypt) const;
     void InitDigestContext() const;
@@ -116,6 +117,11 @@ void CryptoGuardCtx::Impl::RunContextLoop(std::istream &inStream, std::ostream &
 
     while (inStream) {
         inStream.read(reinterpret_cast<char *>(inBuf.data()), chunk_size);
+
+        if (inStream.fail()) {
+            std::runtime_error{"Could not read from input stream"};
+        }
+
         const auto bytes_read = inStream.gcount();
 
         if (bytes_read > 0) {
@@ -123,12 +129,18 @@ void CryptoGuardCtx::Impl::RunContextLoop(std::istream &inStream, std::ostream &
             utils::ThrowOnOpenSSLErrCode(EVP_CipherUpdate, ctx_.get(), outBuf.data(), &out_len, inBuf.data(),
                                          static_cast<int>(bytes_read));
             outStream.write(reinterpret_cast<const char *>(outBuf.data()), out_len);
+            if (!outStream.good()) {
+                std::runtime_error{"Could not put the result into output stream"};
+            }
         }
     }
 
     int out_len;
     utils::ThrowOnOpenSSLErrCode(EVP_CipherFinal_ex, ctx_.get(), outBuf.data(), &out_len);
     outStream.write(reinterpret_cast<const char *>(outBuf.data()), out_len);
+    if (!outStream.good()) {
+        std::runtime_error{"Could not put the result into output stream"};
+    }
 };
 
 std::string CryptoGuardCtx::Impl::CalculateChecksum(std::istream &inStream) const {
@@ -138,6 +150,11 @@ std::string CryptoGuardCtx::Impl::CalculateChecksum(std::istream &inStream) cons
 
     while (inStream) {
         inStream.read(reinterpret_cast<char *>(buffer.data()), buffer.size());
+
+        if (inStream.fail()) {
+            std::runtime_error{"Could not read from input stream"};
+        }
+
         const auto bytes_read = inStream.gcount();
 
         if (bytes_read > 0) {

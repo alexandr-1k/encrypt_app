@@ -24,7 +24,7 @@ ProgramOptions::ProgramOptions() : desc_("Allowed options") {
             "Path to output file")
         ("password,p", 
             po::value<std::string>(&password_), 
-            "Password for symetric encryption/description")
+            "Password for symmetric encryption/description")
         ("command,c", 
             po::value<std::string>()
             ->notifier([this](const std::string& value){
@@ -36,11 +36,13 @@ ProgramOptions::ProgramOptions() : desc_("Allowed options") {
                     };
                 }
             }), 
-            "Mode: encrypt, decrtypt, checksum");
+            "Mode: encrypt, decrypt, checksum");
     // clang-format on
 }
 
 ProgramOptions::~ProgramOptions() = default;
+
+void ProgramOptions::ValidateFileIsAvailable(const std::string &path) const { utils::ValidateFileIsAvailable(path); };
 
 void ProgramOptions::Parse(int argc, char *argv[]) {
     namespace po = boost::program_options;
@@ -51,7 +53,7 @@ void ProgramOptions::Parse(int argc, char *argv[]) {
 
     if (argc == 1) {
         std::cerr << desc_ << std::endl;
-        return;
+        throw std::runtime_error{"Invalid usage"};
     }
 
     if (vm.at("help").as<bool>()) {
@@ -62,19 +64,19 @@ void ProgramOptions::Parse(int argc, char *argv[]) {
     command_ = commandMapping_.at(command_raw.as<std::string>());
 
     // did not use `required` in `add_options` because of the optional `help`
-    constexpr std::array<std::string_view, 4> requried_params = {"input", "output", "password", "command"};
-    for (const auto &opt : requried_params) {
+    constexpr std::array<std::string_view, 4> required_params = {"input", "output", "password", "command"};
+    for (const auto &opt : required_params) {
 
         if (command_ == COMMAND_TYPE::CHECKSUM && opt == "password") {
             continue;
         }
 
         if (!vm.count(std::string(opt))) {
-            throw std::runtime_error{std::format("`{}` is requried", opt)};
+            throw std::runtime_error{std::format("`{}` is required", opt)};
         };
     }
 
-    utils::ValidateFileIsAvailable(inputFile_);
+    ValidateFileIsAvailable(inputFile_);
 
     empty_ = false;
 }

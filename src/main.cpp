@@ -30,15 +30,15 @@ int main(int argc, char *argv[]) {
     switch (args.GetCommand()) {
     case CryptoGuard::ProgramOptions::COMMAND_TYPE::ENCRYPT:
         ctx.EncryptFile(input_st, output_st, args.GetPassword());
-        std::print("File ecncrypted");
+        std::print("File encrypted\n");
         break;
     case CryptoGuard::ProgramOptions::COMMAND_TYPE::DECRYPT:
         ctx.DecryptFile(input_st, output_st, args.GetPassword());
-        std::print("File decrypted");
+        std::print("File decrypted\n");
         break;
     case CryptoGuard::ProgramOptions::COMMAND_TYPE::CHECKSUM:
         auto ch_sum = ctx.CalculateChecksum(input_st);
-        std::print("Checksum: {}", ch_sum);
+        std::print("Checksum: {}\n", ch_sum);
         output_st.write(ch_sum.data(), ch_sum.size());
         break;
     }

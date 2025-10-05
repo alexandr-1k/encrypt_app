@@ -38,6 +38,9 @@ private:
     boost::program_options::options_description desc_;
 
     bool empty_ = true;
+
+protected:
+    virtual void ValidateFileIsAvailable(const std::string &path) const;
 };
 
 }  // namespace CryptoGuard
