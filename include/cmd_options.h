@@ -2,6 +2,7 @@
 
 #include <boost/program_options.hpp>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 
 namespace CryptoGuard {
@@ -11,18 +12,16 @@ public:
     ProgramOptions();
     ~ProgramOptions();
 
-    enum class COMMAND_TYPE {
-        ENCRYPT,
-        DECRYPT,
-        CHECKSUM,
-    };
+    enum class COMMAND_TYPE { ENCRYPT, DECRYPT, CHECKSUM };
 
     void Parse(int argc, char *argv[]);
 
-    COMMAND_TYPE GetCommand() const { return command_; }
-    std::string GetInputFile() const { return inputFile_; }
-    std::string GetOutputFile() const { return outputFile_; }
-    std::string GetPassword() const { return password_; }
+    COMMAND_TYPE GetCommand() const noexcept { return command_; }
+    std::string GetInputFile() const noexcept { return inputFile_; }
+    std::string GetOutputFile() const noexcept { return outputFile_; }
+    std::string GetPassword() const noexcept { return password_; }
+    bool IsKnownCommand(std::string_view) const noexcept;
+    bool IsEmpty() const noexcept;
 
 private:
     COMMAND_TYPE command_;
@@ -37,6 +36,8 @@ private:
     std::string password_;
 
     boost::program_options::options_description desc_;
+
+    bool empty_ = true;
 };
 
 }  // namespace CryptoGuard
