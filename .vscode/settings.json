@@ -2,5 +2,7 @@
     "files.eol": "\n",
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
-    "clangd.path": "/usr/bin/clangd-20"
+    "clangd.path": "/usr/bin/clangd-20",
+    "workbench.tree.indent": 32,
+    "editor.inlayHints.enabled":"off"
 }

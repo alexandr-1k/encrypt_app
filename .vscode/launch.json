@@ -7,18 +7,63 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Launch Debug",
+            "name": "Encrypt",
             "program": "${workspaceFolder}/build/CryptoGuard",
             "args": [
                 "-i",
-                "input.txt",
+                "${workspaceFolder}/input.txt",
+                "-o",
+                "${workspaceFolder}/output.txt",
+                "-p",
+                "some_pass",
+                "--command",
+                "encrypt"
+            ],
+            "cwd": "${workspaceFolder}/build",
+            // "preLaunchTask": "GCC: Build Debug app",
+            "initCommands": ["settings set target.disable-aslr false"]
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Decrypt",
+            "program": "${workspaceFolder}/build/CryptoGuard",
+            "args": [
+                "-i",
+                "${workspaceFolder}/output.txt",
+                "-o",
+                "${workspaceFolder}/decrypted.txt",
+                "-p",
+                "some_pass",
+                "--command",
+                "decrypt"
+            ],
+            "cwd": "${workspaceFolder}/build",
+            // "preLaunchTask": "GCC: Build Debug app",
+            "initCommands": ["settings set target.disable-aslr false"]
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Checksum",
+            "program": "${workspaceFolder}/build/CryptoGuard",
+            "args": [
+                "-i",
+                "${workspaceFolder}/input.txt",
+                "-o",
+                "${workspaceFolder}/checksum.txt",
                 "--command",
                 "checksum"
             ],
             "cwd": "${workspaceFolder}/build",
-            "preLaunchTask": "GCC: Build Debug app",
+            // "preLaunchTask": "GCC: Build Debug app",
             "initCommands": ["settings set target.disable-aslr false"]
+        },
+        {
+            "name": "Debug tests",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/CryptoGuard_tests"
         }
-
     ]
 }
